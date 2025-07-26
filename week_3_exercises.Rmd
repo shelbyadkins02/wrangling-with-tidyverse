@@ -13,21 +13,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 All the following question use the sttst_all_sites.xlsx file in the /data directory.
 
-All answers should be made in the .Rmd file, showing the code and your answer and everything pushed back up to your GitHub repo.
 
-triple stars renders a thin line across the page
-
-***
 1. Import sttstj_all_sites and inspect the data set.  What is the data structure and the data type of each field?
-
-
-```{r}
- #this is a code chunk, anything inside the back tics is like being in the R console.
-
-
-
-```
-***
 
 2. How many samples are in the data set?         
 
@@ -52,7 +39,7 @@ triple stars renders a thin line across the page
 
 10. How many years were surveyed in the data set?
 
-11. What is the southern most site sample in the "PVMT" habitat in 2004?
+11. What is the eastern most site sample in the "AGRF" habitat in 2004?
 
 
 

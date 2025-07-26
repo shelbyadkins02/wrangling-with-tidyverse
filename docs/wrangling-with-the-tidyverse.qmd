@@ -1,0 +1,306 @@
+---
+title: "Data Wrangling and Visualization in R"
+subtitle: "Wrangling with the Tidyverse"
+author: "MMES Fall 2025"
+format: 
+  revealjs:
+    theme: simple
+    slide-number: true
+    chalkboard: true
+---
+
+## Why Wrangling?
+
+Data rarely comes in the exact format you need for analysis or visualization. Data wrangling is the process of cleaning, structuring, and enriching raw data into a desired format for better decision-making in less time.
+
+Today, we'll focus on using the **Tidyverse**, a collection of R packages designed for data science that share an underlying design philosophy.
+
+---
+
+## The Tidyverse Philosophy
+
+The Tidyverse is built around a few key ideas:
+
+-   **Pipe-friendly functions**: Functions are designed to be chained together with the pipe operator `%>%`.
+-   **Readability**: Code should be easy to read and understand, like a set of instructions.
+-   **Consistency**: Functions across different Tidyverse packages work in similar, predictable ways.
+
+---
+
+## Subsetting Data: The "Base R" Way
+
+Before the Tidyverse, subsetting was often done with bracket notation `[rows, columns]`.
+
+```{r}
+#| echo: true
+#| eval: false
+
+# Create a sample data frame
+coral_df <- data.frame(
+  species = c("A. palmata", "O. faveolata"),
+  depth_m = c(3, 10)
+)
+
+# Get the first row, all columns
+coral_df[1, ]
+
+# Get all rows, but only the 'species' column
+coral_df[, "species"]
+
+# Get the first row and the second column
+coral_df[1, 2]
+```
+
+While functional, this can become hard to read with complex operations.
+
+---
+
+## The Pipe Operator: `%>%`
+
+The most important operator in the Tidyverse is the pipe `%>%`. Think of it as saying **"and then"**.
+
+It takes the output of the step before it and "pipes" it in as the *first argument* of the step after it.
+
+**Instead of nesting functions like this:**
+`select(filter(coral_df, species == "A. palmata"), depth_m)`
+
+**You can write a clean, readable pipeline:**
+```r
+coral_df %>%
+  filter(species == "A. palmata") %>%
+  select(depth_m)
+```
+
+---
+
+## Core `dplyr` Verbs: `filter()`
+
+The `filter()` function allows you to subset rows based on their values using logical conditions.
+
+```{r}
+#| echo: true
+#| eval: false
+library(dplyr)
+
+# Assume 'coral_data' is a data frame we have loaded
+# Filter for all observations of Acropora palmata
+acropora_palmata <- coral_data %>%
+  filter(species_name == "Acropora palmata")
+
+# Filter for all corals with a branching morphology
+branching_corals <- coral_data %>%
+  filter(morphology == "branching")
+```
+
+---
+
+## Core `dplyr` Verbs: `select()`
+
+The `select()` function allows you to choose columns by their names.
+
+```{r}
+#| echo: true
+#| eval: false
+library(dplyr)
+
+# Select just the species, site, and depth columns
+coral_subset <- coral_data %>%
+  select(species_name, site, depth_m)
+
+# You can also use select() to remove columns
+coral_no_notes <- coral_data %>%
+  select(-notes)
+```
+
+---
+
+## Core `dplyr` Verbs: `arrange()`
+
+The `arrange()` function sorts the rows of a data frame by the values in one or more columns.
+
+```{r}
+#| echo: true
+#| eval: false
+library(dplyr)
+
+# Arrange the data by depth, from shallowest to deepest
+# This is the default (ascending) order
+shallow_to_deep <- coral_data %>%
+  arrange(depth_m)
+
+# Arrange by depth in descending order (deepest to shallowest)
+# Use the desc() helper function for this
+deep_to_shallow <- coral_data %>%
+  arrange(desc(depth_m))
+```
+
+---
+
+## Combining Verbs
+
+The real power comes from chaining these verbs together to perform sequential operations.
+
+**Goal**: Find the site and depth of all *Acropora palmata* colonies, ordered from deepest to shallowest.
+
+```{r}
+#| echo: true
+#| eval: false
+library(dplyr)
+
+deep_acropora <- coral_data %>%
+  # 1. First, filter for the correct species
+  filter(species_name == "Acropora palmata") %>%
+  # 2. AND THEN, sort the results by depth
+  arrange(desc(depth_m)) %>%
+  # 3. AND THEN, select only the site and depth columns
+  select(site, depth_m)
+```
+
+---
+
+## Counting Rows: `tally()` and `nrow()`
+
+- `nrow()` (from base R) gives the total number of rows.
+- `tally()` (from `dplyr`) is pipe-friendly and does the same thing.
+
+```{r}
+#| echo: true
+#| eval: false
+library(dplyr)
+
+# Base R way:
+nrow(coral_data)
+
+# Tidyverse way:
+coral_data %>% tally()
+
+# Count how many observations are of branching corals
+branching_count <- coral_data %>%
+  filter(morphology == "branching") %>%
+  tally()
+```
+
+---
+
+## Finding Unique Values with `distinct()`
+
+The `distinct()` function is used to find unique rows based on one or more columns. It's a great way to see all the unique values present in your data.
+
+```{r}
+#| echo: true
+#| eval: false
+library(dplyr)
+
+# Get a list of all unique coral species in the dataset
+unique_species <- coral_data %>%
+  distinct(species_name)
+
+# Get all unique combinations of site and morphology
+unique_site_morphology <- coral_data %>%
+  distinct(site, morphology)
+```
+
+---
+
+## Counting Unique Values with `n_distinct()`
+
+While `distinct() %>% tally()` works, `n_distinct()` is a more direct way to count the number of unique values in a column.
+
+**Goal**: How many unique species were observed in the dataset?
+
+```{r}
+#| echo: true
+#| eval: false
+library(dplyr)
+
+# This returns a single number
+unique_species_count <- coral_data %>%
+  summarise(n_unique = n_distinct(species_name))
+```
+
+---
+
+## Summarizing with `count()`
+
+The `count()` function is a powerful shortcut that groups by a variable and counts the number of observations in each group.
+
+**Goal**: Count the number of observations for each coral morphology.
+
+```{r}
+#| echo: true
+#| eval: false
+library(dplyr)
+
+# Count observations for each morphology
+morphology_counts <- coral_data %>%
+  count(morphology)
+
+# You can also sort the results in descending order
+morphology_counts_sorted <- coral_data %>%
+  count(morphology, sort = TRUE)
+```
+
+---
+
+## Comparison Operators
+
+These operators are used to compare values, often inside a `filter()` call. They return `TRUE` or `FALSE`.
+
+| Operator | Meaning                  |
+|:--------:|:-------------------------|
+| `==`     | Equal to                 |
+| `!=`     | Not equal to             |
+| `>`      | Greater than             |
+| `>=`     | Greater than or equal to |
+| `<`      | Less than                |
+| `<=`     | Less than or equal to    |
+
+---
+
+## Logical Operators
+
+These operators are used to combine multiple logical (`TRUE`/`FALSE`) statements.
+
+| Operator | Meaning                                |
+|:--------:|:---------------------------------------|
+| `&`      | AND (returns `TRUE` if both are true)  |
+| `|`      | OR (returns `TRUE` if either is true)  |
+| `!`      | NOT (inverts `TRUE` to `FALSE`, etc.)  |
+
+---
+
+## Advanced Filtering (Part 1)
+
+You can combine multiple conditions using logical operators.
+
+**Goal**: Find all observations of *Orbicella faveolata* **OR** *Orbicella annularis*.
+
+```{r}
+#| echo: true
+#| eval: false
+library(dplyr)
+
+orbicella_species <- coral_data %>%
+  filter(species_name == "Orbicella faveolata" | species_name == "Orbicella annularis")
+```
+
+---
+
+## Advanced Filtering (Part 2)
+
+A common task is to filter for rows where a column value is one of several options. The `%in%` operator is perfect for this.
+
+**Goal**: Find all observations of the three key Caribbean *Acropora* species.
+
+```{r}
+#| echo: true
+#| eval: false
+library(dplyr)
+
+# The %in% operator checks if a value is found in a vector
+threatened_acropora <- c("Acropora palmata", "Acropora cervicornis", "Acropora prolifera")
+
+filtered_acropora <- coral_data %>%
+  filter(species_name %in% threatened_acropora)
+```
+This is much cleaner than writing `filter(species_name == "Acropora palmata" | ...)`

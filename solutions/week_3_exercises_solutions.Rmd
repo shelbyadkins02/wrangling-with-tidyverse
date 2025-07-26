@@ -14,12 +14,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 All the following question use the sttst_all_sites.xlsx file in the /data directory.
 
-All answers should be made in the .Rmd file, showing the code and your answer and everything pushed back up to your GitHub repo.
-
-triple stars renders a thin line across the page
-
-***
-
 
 Import libraries but don't show the output 'include=FALSE'
 ```{r results='hide', message=FALSE, warning=FALSE}
@@ -52,19 +46,27 @@ glimpse(data)
 2. How many samples are in the data set?   
 
 ```{r}
-print(nrow(data))
+nrow(data)
 count(data)
+data %>% 
+  tally()
 
-## What is this code doing? Are there other ways to accomplish this same task?
-length(unique(data$yr_site))
 ```
 
 
 3. How many unique habitat types are there?  What are the names of each habitat?
 
+Notice how the answer is the same, but the output type is different
+
 ```{r}
+
 hab_types <- unique(data$hab)
-print(hab_types)
+hab_types
+
+hab_types_alt <- data %>% 
+  distinct(hab)
+
+hab_types_alt
 ```
 
 
@@ -74,16 +76,19 @@ print(hab_types)
 data %>% 
   count(hab)
 
+data %>% 
+  filter(hab == "PVMT") %>% 
+  count(hab)
+  
 ```
 
 
-5. How many sites are there in the "PVMT" or "AGRF" habitat types? You could manually sum the site numbers using previous code, but how would you do this programmatically?
+5. How many sites are there in the "PVMT" or "AGRF" habitat types?
 
 ```{r}
 data %>% 
   filter(hab %in% c("PVMT","AGRF")) %>% 
-  count(hab) %>% 
-  summarise(tot = sum(n))
+  count(hab)
 
 ```
 
@@ -93,8 +98,7 @@ data %>%
 ```{r}
 data %>% 
   filter(hab != "PVMT") %>% 
-  count(hab) %>% 
-  summarise(tot = sum(n))
+  count(hab)
 ```
 
 
@@ -139,19 +143,19 @@ data %>%
 10. How many years were surveyed in the data set?
 
 ```{r}
-data %>% 
-  mutate(year = as.integer(substr(yr_site, 1,4))) %>% 
-  summarise(length(unique(year)))
+data %>% distinct(year) %>% 
+  tally()
+
+data %>% select(year) %>% n_distinct()
 ```
 
 
-11. What is the southern most site sample in the "PVMT" habitat in 2004?
+11. What is the eastern most site sample in the "AGRF" habitat in 2004?
 
 ```{r}
 data %>% 
-  mutate(year = as.integer(substr(yr_site, 1,4))) %>% 
   filter(year == 2004 & hab == "PVMT") %>% 
-  arrange(lat)
+  arrange(desc(lon))
 ```
 
 

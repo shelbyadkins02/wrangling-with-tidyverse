@@ -447,10 +447,6 @@ display: none;
 
 <p>All the following question use the sttst_all_sites.xlsx file in the
 /data directory.</p>
-<p>All answers should be made in the .Rmd file, showing the code and
-your answer and everything pushed back up to your GitHub repo.</p>
-<p>triple stars renders a thin line across the page</p>
-<hr />
 <p>Import libraries but don’t show the output ‘include=FALSE’</p>
 <pre class="r"><code>library(tidyverse)
 library(readxl)
@@ -487,8 +483,9 @@ class(data)</code></pre>
 <pre><code>## [1] &quot;tbl_df&quot;     &quot;tbl&quot;        &quot;data.frame&quot;</code></pre>
 <pre class="r"><code>glimpse(data)</code></pre>
 <pre><code>## Rows: 2,505
-## Columns: 4
+## Columns: 5
 ## $ yr_site &lt;chr&gt; &quot;2001_241&quot;, &quot;2001_243&quot;, &quot;2001_244&quot;, &quot;2001_247&quot;, &quot;2001_248&quot;, &quot;2…
+## $ year    &lt;dbl&gt; 2001, 2001, 2001, 2001, 2001, 2001, 2001, 2001, 2001, 2001, 20…
 ## $ lat     &lt;dbl&gt; 18.31079, 18.34443, 18.34059, 18.30880, 18.31465, 18.31712, 18…
 ## $ lon     &lt;dbl&gt; -64.77668, -64.68200, -64.68392, -64.72294, -64.76942, -64.726…
 ## $ hab     &lt;chr&gt; &quot;PVMT&quot;, &quot;AGRF&quot;, &quot;AGRF&quot;, &quot;AGRF&quot;, &quot;PVMT&quot;, &quot;SCR&quot;, &quot;PVMT&quot;, &quot;PTRF&quot;,…</code></pre>
@@ -496,23 +493,41 @@ class(data)</code></pre>
 <ol start="2" style="list-style-type: decimal">
 <li>How many samples are in the data set?</li>
 </ol>
-<pre class="r"><code>print(nrow(data))</code></pre>
+<pre class="r"><code>nrow(data)</code></pre>
 <pre><code>## [1] 2505</code></pre>
 <pre class="r"><code>count(data)</code></pre>
 <pre><code>## # A tibble: 1 × 1
 ##       n
 ##   &lt;int&gt;
 ## 1  2505</code></pre>
-<pre class="r"><code>## What is this code doing? Are there other ways to accomplish this same task?
-length(unique(data$yr_site))</code></pre>
-<pre><code>## [1] 2505</code></pre>
+<pre class="r"><code>data %&gt;% 
+  tally()</code></pre>
+<pre><code>## # A tibble: 1 × 1
+##       n
+##   &lt;int&gt;
+## 1  2505</code></pre>
 <ol start="3" style="list-style-type: decimal">
 <li>How many unique habitat types are there? What are the names of each
 habitat?</li>
 </ol>
+<p>Notice how the answer is the same, but the output type is
+different</p>
 <pre class="r"><code>hab_types &lt;- unique(data$hab)
-print(hab_types)</code></pre>
+hab_types</code></pre>
 <pre><code>## [1] &quot;PVMT&quot; &quot;AGRF&quot; &quot;SCR&quot;  &quot;PTRF&quot; &quot;BDRK&quot; &quot;HARD&quot;</code></pre>
+<pre class="r"><code>hab_types_alt &lt;- data %&gt;% 
+  distinct(hab)
+
+hab_types_alt</code></pre>
+<pre><code>## # A tibble: 6 × 1
+##   hab  
+##   &lt;chr&gt;
+## 1 PVMT 
+## 2 AGRF 
+## 3 SCR  
+## 4 PTRF 
+## 5 BDRK 
+## 6 HARD</code></pre>
 <ol start="4" style="list-style-type: decimal">
 <li>How many sites are there in the “PVMT” habitat type?</li>
 </ol>
@@ -527,31 +542,39 @@ print(hab_types)</code></pre>
 ## 4 PTRF    320
 ## 5 PVMT    571
 ## 6 SCR     264</code></pre>
+<pre class="r"><code>data %&gt;% 
+  filter(hab == &quot;PVMT&quot;) %&gt;% 
+  count(hab)</code></pre>
+<pre><code>## # A tibble: 1 × 2
+##   hab       n
+##   &lt;chr&gt; &lt;int&gt;
+## 1 PVMT    571</code></pre>
 <ol start="5" style="list-style-type: decimal">
-<li>How many sites are there in the “PVMT” or “AGRF” habitat types? You
-could manually sum the site numbers using previous code, but how would
-you do this programmatically?</li>
+<li>How many sites are there in the “PVMT” or “AGRF” habitat types?</li>
 </ol>
 <pre class="r"><code>data %&gt;% 
   filter(hab %in% c(&quot;PVMT&quot;,&quot;AGRF&quot;)) %&gt;% 
-  count(hab) %&gt;% 
-  summarise(tot = sum(n))</code></pre>
-<pre><code>## # A tibble: 1 × 1
-##     tot
-##   &lt;int&gt;
-## 1  1538</code></pre>
+  count(hab)</code></pre>
+<pre><code>## # A tibble: 2 × 2
+##   hab       n
+##   &lt;chr&gt; &lt;int&gt;
+## 1 AGRF    967
+## 2 PVMT    571</code></pre>
 <ol start="6" style="list-style-type: decimal">
 <li>How many sites are there in all the habitat types EXCEPT
 “PVMT”?</li>
 </ol>
 <pre class="r"><code>data %&gt;% 
   filter(hab != &quot;PVMT&quot;) %&gt;% 
-  count(hab) %&gt;% 
-  summarise(tot = sum(n))</code></pre>
-<pre><code>## # A tibble: 1 × 1
-##     tot
-##   &lt;int&gt;
-## 1  1934</code></pre>
+  count(hab)</code></pre>
+<pre><code>## # A tibble: 5 × 2
+##   hab       n
+##   &lt;chr&gt; &lt;int&gt;
+## 1 AGRF    967
+## 2 BDRK    192
+## 3 HARD    191
+## 4 PTRF    320
+## 5 SCR     264</code></pre>
 <ol start="7" style="list-style-type: decimal">
 <li>Show the first 5 records (rows) of…
 <ul>
@@ -562,15 +585,15 @@ you do this programmatically?</li>
 <pre class="r"><code>data %&gt;% 
   filter(hab %in% c(&quot;AGRF&quot;, &quot;SCR&quot;)) %&gt;% 
   head()</code></pre>
-<pre><code>## # A tibble: 6 × 4
-##   yr_site    lat   lon hab  
-##   &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;
-## 1 2001_243  18.3 -64.7 AGRF 
-## 2 2001_244  18.3 -64.7 AGRF 
-## 3 2001_247  18.3 -64.7 AGRF 
-## 4 2001_249  18.3 -64.7 SCR  
-## 5 2001_256  18.3 -64.7 AGRF 
-## 6 2001_260  18.3 -64.7 AGRF</code></pre>
+<pre><code>## # A tibble: 6 × 5
+##   yr_site   year   lat   lon hab  
+##   &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;
+## 1 2001_243  2001  18.3 -64.7 AGRF 
+## 2 2001_244  2001  18.3 -64.7 AGRF 
+## 3 2001_247  2001  18.3 -64.7 AGRF 
+## 4 2001_249  2001  18.3 -64.7 SCR  
+## 5 2001_256  2001  18.3 -64.7 AGRF 
+## 6 2001_260  2001  18.3 -64.7 AGRF</code></pre>
 <pre class="r"><code>data %&gt;% 
   filter(hab %in% c(&quot;AGRF&quot;, &quot;SCR&quot;)) %&gt;% 
   select(yr_site, hab) %&gt;% 
@@ -592,19 +615,19 @@ you do this programmatically?</li>
 <pre class="r"><code>data %&gt;% 
   filter(hab == &quot;BDRK&quot;) %&gt;% 
   arrange(desc(lat))</code></pre>
-<pre><code>## # A tibble: 192 × 4
-##    yr_site     lat   lon hab  
-##    &lt;chr&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;
-##  1 2019_5450  18.4 -65.1 BDRK 
-##  2 2021_5474  18.4 -65.0 BDRK 
-##  3 2015_9832  18.4 -65.0 BDRK 
-##  4 2019_5444  18.4 -65.0 BDRK 
-##  5 2021_5464  18.4 -65.0 BDRK 
-##  6 2015_9831  18.4 -65.0 BDRK 
-##  7 2015_9830  18.4 -65.0 BDRK 
-##  8 2019_5439  18.4 -65.0 BDRK 
-##  9 2021_5443  18.4 -64.9 BDRK 
-## 10 2013_8773  18.4 -64.9 BDRK 
+<pre><code>## # A tibble: 192 × 5
+##    yr_site    year   lat   lon hab  
+##    &lt;chr&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;
+##  1 2019_5450  2019  18.4 -65.1 BDRK 
+##  2 2021_5474  2021  18.4 -65.0 BDRK 
+##  3 2015_9832  2015  18.4 -65.0 BDRK 
+##  4 2019_5444  2019  18.4 -65.0 BDRK 
+##  5 2021_5464  2021  18.4 -65.0 BDRK 
+##  6 2015_9831  2015  18.4 -65.0 BDRK 
+##  7 2015_9830  2015  18.4 -65.0 BDRK 
+##  8 2019_5439  2019  18.4 -65.0 BDRK 
+##  9 2021_5443  2021  18.4 -64.9 BDRK 
+## 10 2013_8773  2013  18.4 -64.9 BDRK 
 ## # ℹ 182 more rows</code></pre>
 <ol start="9" style="list-style-type: decimal">
 <li>What is the western most site sampled in either “AGRF” or “PTRF”
@@ -613,51 +636,51 @@ habitat?</li>
 <pre class="r"><code>data %&gt;% 
   filter(hab == &quot;AGRF&quot; | hab == &quot;PTRF&quot;) %&gt;% 
   arrange(lon)</code></pre>
-<pre><code>## # A tibble: 1,287 × 4
-##    yr_site     lat   lon hab  
-##    &lt;chr&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;
-##  1 2015_9758  18.3 -65.1 AGRF 
-##  2 2015_9764  18.3 -65.1 AGRF 
-##  3 2015_9765  18.3 -65.1 AGRF 
-##  4 2013_8943  18.3 -65.1 AGRF 
-##  5 2015_9763  18.3 -65.1 AGRF 
-##  6 2013_9032  18.3 -65.1 AGRF 
-##  7 2013_8942  18.3 -65.1 AGRF 
-##  8 2015_9760  18.3 -65.1 AGRF 
-##  9 2015_9757  18.3 -65.1 AGRF 
-## 10 2015_9761  18.3 -65.1 AGRF 
+<pre><code>## # A tibble: 1,287 × 5
+##    yr_site    year   lat   lon hab  
+##    &lt;chr&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;
+##  1 2015_9758  2015  18.3 -65.1 AGRF 
+##  2 2015_9764  2015  18.3 -65.1 AGRF 
+##  3 2015_9765  2015  18.3 -65.1 AGRF 
+##  4 2013_8943  2013  18.3 -65.1 AGRF 
+##  5 2015_9763  2015  18.3 -65.1 AGRF 
+##  6 2013_9032  2013  18.3 -65.1 AGRF 
+##  7 2013_8942  2013  18.3 -65.1 AGRF 
+##  8 2015_9760  2015  18.3 -65.1 AGRF 
+##  9 2015_9757  2015  18.3 -65.1 AGRF 
+## 10 2015_9761  2015  18.3 -65.1 AGRF 
 ## # ℹ 1,277 more rows</code></pre>
 <ol start="10" style="list-style-type: decimal">
 <li>How many years were surveyed in the data set?</li>
 </ol>
-<pre class="r"><code>data %&gt;% 
-  mutate(year = as.integer(substr(yr_site, 1,4))) %&gt;% 
-  summarise(length(unique(year)))</code></pre>
+<pre class="r"><code>data %&gt;% distinct(year) %&gt;% 
+  tally()</code></pre>
 <pre><code>## # A tibble: 1 × 1
-##   `length(unique(year))`
-##                    &lt;int&gt;
-## 1                     16</code></pre>
+##       n
+##   &lt;int&gt;
+## 1    16</code></pre>
+<pre class="r"><code>data %&gt;% select(year) %&gt;% n_distinct()</code></pre>
+<pre><code>## [1] 16</code></pre>
 <ol start="11" style="list-style-type: decimal">
-<li>What is the southern most site sample in the “PVMT” habitat in
+<li>What is the eastern most site sample in the “AGRF” habitat in
 2004?</li>
 </ol>
 <pre class="r"><code>data %&gt;% 
-  mutate(year = as.integer(substr(yr_site, 1,4))) %&gt;% 
   filter(year == 2004 &amp; hab == &quot;PVMT&quot;) %&gt;% 
-  arrange(lat)</code></pre>
+  arrange(desc(lon))</code></pre>
 <pre><code>## # A tibble: 43 × 5
-##    yr_site     lat   lon hab    year
-##    &lt;chr&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt; &lt;int&gt;
-##  1 2004_1932  18.3 -64.8 PVMT   2004
-##  2 2004_1941  18.3 -64.7 PVMT   2004
-##  3 2004_1766  18.3 -64.7 PVMT   2004
-##  4 2004_1911  18.3 -64.7 PVMT   2004
-##  5 2004_1921  18.3 -64.7 PVMT   2004
-##  6 2004_1763  18.3 -64.7 PVMT   2004
-##  7 2004_1912  18.3 -64.7 PVMT   2004
-##  8 2004_1940  18.3 -64.8 PVMT   2004
-##  9 2004_1930  18.3 -64.8 PVMT   2004
-## 10 2004_1943  18.3 -64.7 PVMT   2004
+##    yr_site    year   lat   lon hab  
+##    &lt;chr&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;
+##  1 2004_1828  2004  18.3 -64.7 PVMT 
+##  2 2004_1842  2004  18.4 -64.7 PVMT 
+##  3 2004_1908  2004  18.3 -64.7 PVMT 
+##  4 2004_1832  2004  18.3 -64.7 PVMT 
+##  5 2004_1879  2004  18.3 -64.7 PVMT 
+##  6 2004_1883  2004  18.3 -64.7 PVMT 
+##  7 2004_1888  2004  18.3 -64.7 PVMT 
+##  8 2004_1893  2004  18.3 -64.7 PVMT 
+##  9 2004_1915  2004  18.3 -64.7 PVMT 
+## 10 2004_1892  2004  18.3 -64.7 PVMT 
 ## # ℹ 33 more rows</code></pre>
 
 
