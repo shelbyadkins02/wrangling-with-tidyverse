@@ -1,7 +1,7 @@
 ---
-title: "Week_3_GIS_Lab"
+title: "Importing, Selecting and Atrributes Lab"
 author: "J.Blondeau"
-date: "2024-09-05"
+date: "`r Sys.Date()`"
 output:
   html_document: default
   pdf_document: default
@@ -11,16 +11,17 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-All the data (.xlsx and .csv) are located in the One Drive folder I shared.  In this lab you will begin with importing some National Coral Reef Monitoring data sets and then running some general geoprocessing tools. 
+All the data (.xlsx and .csv) are located in the Google Drive folder I shared.  In this lab you will begin with importing some National Coral Reef Monitoring data sets and then running some general geoprocessing tools. 
 
-1. Begin a new project in ArcGIS using the Map template.  This will set you up with a base map layer  and a geodatabase.  You should use this project for the rest of the course labs.
+1. Begin a new project in ArcGIS using the Map template.  This will set you up with a base map layer  and a geodatabase.
 
-2. Import the caribbean_shoreline shapefile.  
-    - Should this shapefile go into your geodatabase that was created when you created the project?
+2. Load the caribbean_shoreline shapefile from the geodatabase of course materials.  
+
     - Inspect the attribute table to understand how the data is organized. 
 
 3. Select the U.S. Virgin Islands attributes and make a new layer from selection. 
     - Inspect the attribute table.  Edit (in line) the "Island" attribute.
+    - Did this make a 'new' shapefile that youhad to save somewhere?
     
 4. Use the dissolve tool on the previous shapefile to create a single record element. 
     - What are the pros and cons of using the dissolved layer vs. the undissolved layer?
@@ -50,10 +51,6 @@ All the data (.xlsx and .csv) are located in the One Drive folder I shared.  In 
 6. What is the northern most site sampled in the "BDRK" habitat?
 
 7. What is the western most site sampled in either "AGRF" or "PTRF" habitat?
-
-8. How many years were surveyed in the data set?
-
-9. What is the southern most site sample in the "PVMT" habitat in 2004?
 
 ### The Following qustions use the DCRMP_sites shapefile you just created.
 
